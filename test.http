@@ -1,0 +1,2 @@
+GET http://localhost:3033/compet/questions
+Content-Type: application/json
