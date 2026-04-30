@@ -43,9 +43,19 @@ export class CompetController {
   public async getCompetByTheme() {
     const pool = database.Database.getPool();
     const result = await pool.query({
-      text: `SELECT q.*, t.libelle as libelle_theme, qt.ordre, qca.aliases FROM tlmvpsp.questions q
+      text: `SELECT 
+              q.question, 
+              q.bonne_reponse, 
+              q.mauvaises_reponses, 
+              t.libelle as libelle_theme, 
+              qt.ordre, 
+              qca.aliases, 
+              mq.musique, 
+              mq.jouee_apres_question 
+            FROM tlmvpsp.questions q
             JOIN tlmvpsp.question_theme qt on q.id = qt.id_question
             JOIN tlmvpsp.theme t on qt.id_theme = t.id
+            LEFT JOIN tlmvpsp.musiques_question mq on q.id = mq.id_question
             LEFT JOIN tlmvpsp.question_cash_aliases qca on qt.id_question = qca.id_question
             WHERE qt.id_theme = (SELECT id_theme_compet FROM tlmvpsp.partie_config WHERE en_cours IS TRUE )
             ORDER BY qt.ordre`,
