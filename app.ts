@@ -122,6 +122,7 @@ export class App {
             mauvaises_reponses: item.mauvaises_reponses,
             ordre: item.ordre,
             musique: item.musique,
+            jouee_apres_question: item.jouee_apres_question,
             aliases: item.aliases,
           })),
         };
