@@ -120,6 +120,7 @@ export class App {
             question: item.question,
             bonne_reponse: item.bonne_reponse,
             mauvaises_reponses: item.mauvaises_reponses,
+            tri: item.tri,
             ordre: item.ordre,
             musique: item.musique,
             jouee_apres_question: item.jouee_apres_question,
@@ -247,6 +248,7 @@ export class App {
             question: item.question,
             bonneReponse: item.bonne_reponse,
             mauvaisesReponses: item.mauvaises_reponses,
+            tri: item.tri,
             ordre: item.ordre,
           })),
         };
