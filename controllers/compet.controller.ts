@@ -46,7 +46,8 @@ export class CompetController {
       text: `SELECT 
               q.question, 
               q.bonne_reponse, 
-              q.mauvaises_reponses, 
+              q.mauvaises_reponses,
+              q.tri, 
               t.libelle as libelle_theme, 
               qt.ordre, 
               qca.aliases, 

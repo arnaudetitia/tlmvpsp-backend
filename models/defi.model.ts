@@ -7,5 +7,6 @@ export interface QuestionDefi {
   question: string;
   bonneReponse: string;
   mauvaisesReponses: string[];
+  tri: string;
   ordre: number;
 }

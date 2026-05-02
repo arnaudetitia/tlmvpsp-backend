@@ -14,7 +14,14 @@ export class DefiController {
   public async getQuestionTheme(idTheme: number) {
     const pool = database.Database.getPool();
     const result = await pool.query({
-      text: `SELECT q.*, t.libelle as libelle_theme, qt.ordre FROM tlmvpsp.questions q
+      text: `SELECT 
+              q.question, 
+              q.bonne_reponse, 
+              q.mauvaises_reponses, 
+              q.tri, 
+              t.libelle as libelle_theme, 
+              qt.ordre 
+            FROM tlmvpsp.questions q
             JOIN tlmvpsp.question_theme qt ON q.id = qt.id_question
             JOIN tlmvpsp.theme t ON qt.id_theme = t.id
             WHERE t.id = $1

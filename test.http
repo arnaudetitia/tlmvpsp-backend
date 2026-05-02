@@ -1,2 +1,11 @@
+### Récupérer les qualifs
+GET http://localhost:3033/qualifs
+Content-Type: application/json
+
+### Récupérer la question du compet
 GET http://localhost:3033/compet/questions
+Content-Type: application/json
+
+### Récupérer les questions de defi
+GET http://localhost:3033/defi/questions/1
 Content-Type: application/json
