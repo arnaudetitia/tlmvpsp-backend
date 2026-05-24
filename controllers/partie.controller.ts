@@ -7,6 +7,8 @@ export class PartieController {
       `SELECT 
         p.id,
         p.nom_partie,
+        champ.nom_lignee,
+        champ.nom_champion,
         (
             SELECT JSON_AGG(JSON_BUILD_OBJECT('question', q.question, 'bonneReponse', q.bonne_reponse))
             FROM tlmvpsp.questions q
@@ -20,6 +22,7 @@ export class PartieController {
         ) AS themes_defi
             FROM tlmvpsp.parties p
             JOIN tlmvpsp.themes_compet tc ON p.id_theme_compet = tc.id
+            JOIN tlmvpsp.champion champ ON p.id_champion = champ.id
             ORDER BY p.id;
          `,
     );

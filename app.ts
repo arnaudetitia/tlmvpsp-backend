@@ -278,9 +278,10 @@ export class App {
       }
     });
 
-    this.app.get("/defi/champion", async (req, res) => {
+    this.app.get("/defi/champion/:idPartie", async (req, res) => {
       try {
-        const champion = await this.defiController.getChampion();
+        const idPartie = Number.parseInt(req.params.idPartie);
+        const champion = await this.defiController.getChampion(idPartie);
         res.json(champion.nom_champion);
       } catch (error) {
         console.error("Erreur lors de la récupération du champion", error);
@@ -288,10 +289,11 @@ export class App {
       }
     });
 
-    this.app.put("/defi/champion", async (req, res) => {
+    this.app.put("/defi/champion/:idPartie", async (req, res) => {
       try {
+        const idPartie = Number.parseInt(req.params.idPartie);
         const newChampion = req.body.newChampion;
-        await this.defiController.putChampion(newChampion);
+        await this.defiController.putChampion(idPartie, newChampion);
         res.json(true);
       } catch (error) {
         console.error("Erreur lors de la récupération du champion", error);

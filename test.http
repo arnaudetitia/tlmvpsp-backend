@@ -17,3 +17,7 @@ Content-Type: application/json
 ### Récupérer les questions du défi
 GET http://localhost:3033/defi/questions/1
 Content-Type: application/json
+
+### Récupérer les questions du défi
+GET http://localhost:3033/defi/champion/1
+Content-Type: application/json
