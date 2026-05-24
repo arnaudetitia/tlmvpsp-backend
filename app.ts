@@ -60,9 +60,10 @@ export class App {
       }
     });
     //QUALIFS
-    this.app.get("/qualifs", async (req, res) => {
+    this.app.get("/qualifs/:idPartie", async (req, res) => {
+      const idPartie = parseInt(req.params.idPartie);
       try {
-        const qualifs = await this.qualifsController.getQualifs();
+        const qualifs = await this.qualifsController.getQualifs(idPartie);
         res.json(qualifs);
       } catch (error) {
         console.error(
@@ -122,9 +123,10 @@ export class App {
       }
     });
 
-    this.app.get("/compet/questions", async (req, res) => {
+    this.app.get("/compet/questions/:idPartie", async (req, res) => {
+      const idPartie = parseInt(req.params.idPartie);
       try {
-        const compet = await this.competController.getCompetByTheme();
+        const compet = await this.competController.getCompetByTheme(idPartie);
         const competResult: QuestionTheme = {
           libelle_theme:
             compet.length > 0 ? compet[0].libelle_theme : "Inconnu",
@@ -237,9 +239,11 @@ export class App {
     });
 
     //DEFI
-    this.app.get("/defi/themes", async (req, res) => {
+    this.app.get("/defi/themes/:idPartie", async (req, res) => {
+      const idPartie = parseInt(req.params.idPartie);
       try {
-        const themesLibelles = await this.defiController.getLibelleThemes();
+        const themesLibelles =
+          await this.defiController.getLibelleThemes(idPartie);
         res.json(themesLibelles);
       } catch (error) {
         console.error(

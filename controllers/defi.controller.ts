@@ -1,12 +1,13 @@
 import database = require("../database");
 
 export class DefiController {
-  public async getLibelleThemes() {
+  public async getLibelleThemes(idPartie: number) {
     const pool = database.Database.getPool();
     const result = await pool.query({
       text: `SELECT t.id as idTheme , t.libelle as libelleTheme
             FROM tlmvpsp.theme t
-            WHERE t.id IN (SELECT UNNEST(id_themes_defi) FROM tlmvpsp.partie_config WHERE en_cours IS TRUE)`,
+            WHERE t.id IN (SELECT UNNEST(ids_themes_defi) FROM tlmvpsp.parties WHERE id = $1)`,
+      values: [idPartie],
     });
     return result.rows;
   }
