@@ -1,3 +1,7 @@
+### Récupérer les parties
+GET http://localhost:3033/parties
+Content-Type: application/json
+
 ### Récupérer les qualifs
 GET http://localhost:3033/qualifs
 Content-Type: application/json
