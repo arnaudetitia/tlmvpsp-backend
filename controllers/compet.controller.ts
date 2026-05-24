@@ -40,7 +40,7 @@ export class CompetController {
     });
   }
 
-  public async getCompetByTheme() {
+  public async getCompetByTheme(idPartie: number) {
     const pool = database.Database.getPool();
     const result = await pool.query({
       text: `SELECT 
@@ -58,8 +58,9 @@ export class CompetController {
             JOIN tlmvpsp.theme t on qt.id_theme = t.id
             LEFT JOIN tlmvpsp.musiques_question mq on q.id = mq.id_question
             LEFT JOIN tlmvpsp.question_cash_aliases qca on qt.id_question = qca.id_question
-            WHERE qt.id_theme = (SELECT id_theme_compet FROM tlmvpsp.partie_config WHERE en_cours IS TRUE )
+            WHERE qt.id_theme = (SELECT id_theme_compet FROM tlmvpsp.parties WHERE id = $1 )
             ORDER BY qt.ordre`,
+      values: [idPartie],
     });
     return result.rows;
   }
