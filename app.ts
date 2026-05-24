@@ -288,10 +288,11 @@ export class App {
       }
     });
 
-    this.app.put("/defi/champion", async (req, res) => {
+    this.app.put("/defi/champion/:idChampion", async (req, res) => {
       try {
+        const idChampion = Number.parseInt(req.params.idChampion);
         const newChampion = req.body.newChampion;
-        await this.defiController.putChampion(newChampion);
+        await this.defiController.putChampion(idChampion, newChampion);
         res.json(true);
       } catch (error) {
         console.error("Erreur lors de la récupération du champion", error);

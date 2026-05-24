@@ -40,12 +40,13 @@ export class DefiController {
     return result.rows[0];
   }
 
-  public async putChampion(newChampion: string) {
+  public async putChampion(idChampion: number, newChampion: string) {
     const pool = database.Database.getPool();
     await pool.query({
       text: `UPDATE tlmvpsp.champion
-            SET nom_champion = $1`,
-      values: [newChampion],
+            SET nom_champion = $1
+            WHERE id = $2`,
+      values: [newChampion, idChampion],
     });
   }
 }
