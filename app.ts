@@ -6,12 +6,13 @@ import { CompetController } from "./controllers/compet.controller";
 import { QuestionTheme } from "./models/compet.model";
 import { DefiController } from "./controllers/defi.controller";
 import { Defi } from "./models/defi.model";
-import { Server, Socket } from "socket.io";
-import { WebSocketServer } from "ws";
+import { Server } from "socket.io";
 import { createServer } from "http";
+import { PartieController } from "./controllers/partie.controller";
 
 export class App {
   app: Application;
+  partieController: PartieController;
   qualifsController: QualifsController;
   competController: CompetController;
   defiController: DefiController;
@@ -21,6 +22,7 @@ export class App {
 
   constructor() {
     this.app = express();
+    this.partieController = new PartieController();
     this.qualifsController = new QualifsController();
     this.competController = new CompetController();
     this.defiController = new DefiController();
@@ -47,6 +49,16 @@ export class App {
   }
 
   private routes(): void {
+    //PARTIES
+    this.app.get("/parties", async (req, res) => {
+      try {
+        const parties = await this.partieController.getAllParties();
+        res.json(parties);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des parties:", error);
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
     //QUALIFS
     this.app.get("/qualifs", async (req, res) => {
       try {
