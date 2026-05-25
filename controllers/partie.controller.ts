@@ -76,4 +76,27 @@ export class PartieController {
     );
     return result.rows;
   }
+
+  public async createNouvellePartie(
+    nomPartie: string,
+    idsQuestionsQualif: number[],
+    idThemeCompet: number,
+    idsThemesDefi: number[],
+    idChampion: number,
+  ) {
+    const pool = database.Database.getPool();
+    await pool.query({
+      text: `
+      INSERT INTO tlmvpsp.parties(nom_partie, ids_questions_qualif, id_theme_compet, ids_themes_defi, id_champion )
+      VALUES ($1, $2, $3, $4, $5)
+      `,
+      values: [
+        nomPartie,
+        idsQuestionsQualif,
+        idThemeCompet,
+        idsThemesDefi,
+        idChampion,
+      ],
+    });
+  }
 }
