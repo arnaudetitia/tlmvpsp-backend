@@ -6,11 +6,11 @@ Content-Type: application/json
 GET http://localhost:3033/qualifs/1
 Content-Type: application/json
 
-### Récupérer la question de la compet
+### Récupérer la question de la compet de la partie en cours
 GET http://localhost:3033/compet/questions/1
 Content-Type: application/json
 
-### Récupérer les themes du défi
+### Récupérer les themes du défi de la partie en cours
 GET http://localhost:3033/defi/themes/1
 Content-Type: application/json
 
@@ -18,6 +18,22 @@ Content-Type: application/json
 GET http://localhost:3033/defi/questions/1
 Content-Type: application/json
 
-### Récupérer les questions du défi
+### Récupérer les questions du défi 
 GET http://localhost:3033/defi/champion/1
+Content-Type: application/json
+
+### Récupérer les lignees de champions
+GET http://localhost:3033/parties/champions
+Content-Type: application/json
+
+### Récupérer les questions des qualifs 
+GET http://localhost:3033/parties/qualifs
+Content-Type: application/json
+
+### Récupérer les themes de la compet
+GET http://localhost:3033/parties/compet
+Content-Type: application/json
+
+### Récupérer les themes du defi
+GET http://localhost:3033/parties/defi
 Content-Type: application/json
