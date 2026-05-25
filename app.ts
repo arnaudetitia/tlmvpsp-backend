@@ -59,6 +59,43 @@ export class App {
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
+    this.app.get("/parties/qualifs", async (req, res) => {
+      try {
+        const questionsQualifs =
+          await this.partieController.getAllQuestionsQualifs();
+        res.json(questionsQualifs);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des questions des qualifs:",
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+    this.app.get("/parties/compet", async (req, res) => {
+      try {
+        const themesCompet = await this.partieController.getAllThemesCompet();
+        res.json(themesCompet);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des themes de la compet:",
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+    this.app.get("/parties/defi", async (req, res) => {
+      try {
+        const themesDefi = await this.partieController.getAllThemesDefi();
+        res.json(themesDefi);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des themes du defi:",
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
     //QUALIFS
     this.app.get("/qualifs/:idPartie", async (req, res) => {
       const idPartie = parseInt(req.params.idPartie);

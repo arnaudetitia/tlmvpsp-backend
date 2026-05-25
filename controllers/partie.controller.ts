@@ -28,4 +28,40 @@ export class PartieController {
     );
     return result.rows;
   }
+
+  public async getAllQuestionsQualifs() {
+    const pool = database.Database.getPool();
+    const result = await pool.query(
+      `
+      SELECT id, question, bonne_reponse
+      FROM tlmvpsp.questions_qualifs
+      ORDER BY id
+      `,
+    );
+    return result.rows;
+  }
+
+  public async getAllThemesCompet() {
+    const pool = database.Database.getPool();
+    const result = await pool.query(
+      `
+      SELECT id, libelle
+      FROM tlmvpsp.themes_compet
+      ORDER BY id
+      `,
+    );
+    return result.rows;
+  }
+
+  public async getAllThemesDefi() {
+    const pool = database.Database.getPool();
+    const result = await pool.query(
+      `
+      SELECT id, libelle
+      FROM tlmvpsp.themes_defi
+      ORDER BY id
+      `,
+    );
+    return result.rows;
+  }
 }
