@@ -29,6 +29,18 @@ export class PartieController {
     return result.rows;
   }
 
+  public async getAllLigneesChampion() {
+    const pool = database.Database.getPool();
+    const result = await pool.query(
+      `
+      SELECT id, nom_lignee, nom_champion
+      FROM tlmvpsp.champion
+      ORDER BY id
+      `,
+    );
+    return result.rows;
+  }
+
   public async getAllQuestionsQualifs() {
     const pool = database.Database.getPool();
     const result = await pool.query(

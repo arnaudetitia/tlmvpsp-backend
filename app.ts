@@ -59,6 +59,19 @@ export class App {
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
+    this.app.get("/parties/champions", async (req, res) => {
+      try {
+        const ligneesChampions =
+          await this.partieController.getAllLigneesChampion();
+        res.json(ligneesChampions);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des lignees de champion:",
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
     this.app.get("/parties/qualifs", async (req, res) => {
       try {
         const questionsQualifs =
