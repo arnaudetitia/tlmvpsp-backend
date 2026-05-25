@@ -59,6 +59,30 @@ export class App {
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
+    this.app.post("/parties", async (req, res) => {
+      try {
+        const nomPartie = req.body.nomPartie;
+        const idsQuestionsQualifs = req.body.idsQuestionsQualifs;
+        const idThemeCompet = Number.parseInt(req.body.idThemeCompet);
+        const idsThemesDefi = req.body.idsThemesDefi;
+        const idChampion = Number.parseInt(req.body.nomPartie);
+        await this.partieController.createNouvellePartie(
+          nomPartie,
+          idsQuestionsQualifs,
+          idThemeCompet,
+          idsThemesDefi,
+          idChampion,
+        );
+        const parties = await this.partieController.getAllParties();
+        res.json(parties);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la sauvegarde d'une nouvelle partie:",
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
     this.app.get("/parties/champions", async (req, res) => {
       try {
         const ligneesChampions =
