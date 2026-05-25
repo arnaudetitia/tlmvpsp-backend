@@ -88,7 +88,7 @@ export class PartieController {
     await pool.query({
       text: `
       INSERT INTO tlmvpsp.parties(nom_partie, ids_questions_qualif, id_theme_compet, ids_themes_defi, id_champion )
-      VALUES ($1,$2,$3,$4, $5)
+      VALUES ($1, $2, $3, $4, $5)
       `,
       values: [
         nomPartie,

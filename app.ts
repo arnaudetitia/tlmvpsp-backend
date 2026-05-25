@@ -60,12 +60,13 @@ export class App {
       }
     });
     this.app.post("/parties", async (req, res) => {
+      console.log(req.body);
       try {
         const nomPartie = req.body.nomPartie;
         const idsQuestionsQualifs = req.body.idsQuestionsQualifs;
         const idThemeCompet = Number.parseInt(req.body.idThemeCompet);
         const idsThemesDefi = req.body.idsThemesDefi;
-        const idChampion = Number.parseInt(req.body.nomPartie);
+        const idChampion = Number.parseInt(req.body.idChampion);
         await this.partieController.createNouvellePartie(
           nomPartie,
           idsQuestionsQualifs,
