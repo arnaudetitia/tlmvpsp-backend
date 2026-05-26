@@ -1,11 +1,39 @@
+### Récupérer les parties
+GET http://localhost:3033/parties
+Content-Type: application/json
+
 ### Récupérer les qualifs
-GET http://localhost:3033/qualifs
+GET http://localhost:3033/qualifs/1
 Content-Type: application/json
 
-### Récupérer la question du compet
-GET http://localhost:3033/compet/questions
+### Récupérer la question de la compet de la partie en cours
+GET http://localhost:3033/compet/questions/1
 Content-Type: application/json
 
-### Récupérer les questions de defi
+### Récupérer les themes du défi de la partie en cours
+GET http://localhost:3033/defi/themes/1
+Content-Type: application/json
+
+### Récupérer les questions du défi
 GET http://localhost:3033/defi/questions/1
+Content-Type: application/json
+
+### Récupérer les questions du défi 
+GET http://localhost:3033/defi/champion/1
+Content-Type: application/json
+
+### Récupérer les lignees de champions
+GET http://localhost:3033/parties/champions
+Content-Type: application/json
+
+### Récupérer les questions des qualifs 
+GET http://localhost:3033/parties/qualifs
+Content-Type: application/json
+
+### Récupérer les themes de la compet
+GET http://localhost:3033/parties/compet
+Content-Type: application/json
+
+### Récupérer les themes du defi
+GET http://localhost:3033/parties/defi
 Content-Type: application/json

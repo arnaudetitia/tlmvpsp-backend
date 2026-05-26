@@ -1,12 +1,13 @@
 import database = require("../database");
 
 export class DefiController {
-  public async getLibelleThemes() {
+  public async getLibelleThemes(idPartie: number) {
     const pool = database.Database.getPool();
     const result = await pool.query({
       text: `SELECT t.id as idTheme , t.libelle as libelleTheme
             FROM tlmvpsp.theme t
-            WHERE t.id IN (SELECT UNNEST(id_themes_defi) FROM tlmvpsp.partie_config WHERE en_cours IS TRUE)`,
+            WHERE t.id IN (SELECT UNNEST(ids_themes_defi) FROM tlmvpsp.parties WHERE id = $1)`,
+      values: [idPartie],
     });
     return result.rows;
   }
@@ -31,20 +32,24 @@ export class DefiController {
     return result.rows;
   }
 
-  public async getChampion() {
+  public async getChampion(idPartie: number) {
     const pool = database.Database.getPool();
     const result = await pool.query({
-      text: `SELECT c.nom_champion FROM tlmvpsp.champion c`,
+      text: `SELECT c.nom_champion FROM tlmvpsp.champion c
+      JOIN tlmvpsp.parties p ON c.id = p.id_champion
+      WHERE p.id = $1`,
+      values: [idPartie],
     });
     return result.rows[0];
   }
 
-  public async putChampion(newChampion: string) {
+  public async putChampion(idPartie: number, newChampion: string) {
     const pool = database.Database.getPool();
     await pool.query({
       text: `UPDATE tlmvpsp.champion
-            SET nom_champion = $1`,
-      values: [newChampion],
+            SET nom_champion = $1
+            WHERE id IN (SELECT id_champion FROM tlmvpsp.parties p WHERE p.id = $2 ) `,
+      values: [newChampion, idPartie],
     });
   }
 }

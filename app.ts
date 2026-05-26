@@ -6,12 +6,13 @@ import { CompetController } from "./controllers/compet.controller";
 import { QuestionTheme } from "./models/compet.model";
 import { DefiController } from "./controllers/defi.controller";
 import { Defi } from "./models/defi.model";
-import { Server, Socket } from "socket.io";
-import { WebSocketServer } from "ws";
+import { Server } from "socket.io";
 import { createServer } from "http";
+import { PartieController } from "./controllers/partie.controller";
 
 export class App {
   app: Application;
+  partieController: PartieController;
   qualifsController: QualifsController;
   competController: CompetController;
   defiController: DefiController;
@@ -21,6 +22,7 @@ export class App {
 
   constructor() {
     this.app = express();
+    this.partieController = new PartieController();
     this.qualifsController = new QualifsController();
     this.competController = new CompetController();
     this.defiController = new DefiController();
@@ -47,10 +49,96 @@ export class App {
   }
 
   private routes(): void {
-    //QUALIFS
-    this.app.get("/qualifs", async (req, res) => {
+    //PARTIES
+    this.app.get("/parties", async (req, res) => {
       try {
-        const qualifs = await this.qualifsController.getQualifs();
+        const parties = await this.partieController.getAllParties();
+        res.json(parties);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des parties:", error);
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+    this.app.post("/parties", async (req, res) => {
+      console.log(req.body);
+      try {
+        const nomPartie = req.body.nomPartie;
+        const idsQuestionsQualifs = req.body.idsQuestionsQualifs;
+        const idThemeCompet = Number.parseInt(req.body.idThemeCompet);
+        const idsThemesDefi = req.body.idsThemesDefi;
+        const idChampion = Number.parseInt(req.body.idChampion);
+        await this.partieController.createNouvellePartie(
+          nomPartie,
+          idsQuestionsQualifs,
+          idThemeCompet,
+          idsThemesDefi,
+          idChampion,
+        );
+        const parties = await this.partieController.getAllParties();
+        res.json(parties);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la sauvegarde d'une nouvelle partie:",
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+    this.app.get("/parties/champions", async (req, res) => {
+      try {
+        const ligneesChampions =
+          await this.partieController.getAllLigneesChampion();
+        res.json(ligneesChampions);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des lignees de champion:",
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+    this.app.get("/parties/qualifs", async (req, res) => {
+      try {
+        const questionsQualifs =
+          await this.partieController.getAllQuestionsQualifs();
+        res.json(questionsQualifs);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des questions des qualifs:",
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+    this.app.get("/parties/compet", async (req, res) => {
+      try {
+        const themesCompet = await this.partieController.getAllThemesCompet();
+        res.json(themesCompet);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des themes de la compet:",
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+    this.app.get("/parties/defi", async (req, res) => {
+      try {
+        const themesDefi = await this.partieController.getAllThemesDefi();
+        res.json(themesDefi);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des themes du defi:",
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+    //QUALIFS
+    this.app.get("/qualifs/:idPartie", async (req, res) => {
+      const idPartie = parseInt(req.params.idPartie);
+      try {
+        const qualifs = await this.qualifsController.getQualifs(idPartie);
         res.json(qualifs);
       } catch (error) {
         console.error(
@@ -110,9 +198,10 @@ export class App {
       }
     });
 
-    this.app.get("/compet/questions", async (req, res) => {
+    this.app.get("/compet/questions/:idPartie", async (req, res) => {
+      const idPartie = parseInt(req.params.idPartie);
       try {
-        const compet = await this.competController.getCompetByTheme();
+        const compet = await this.competController.getCompetByTheme(idPartie);
         const competResult: QuestionTheme = {
           libelle_theme:
             compet.length > 0 ? compet[0].libelle_theme : "Inconnu",
@@ -225,9 +314,11 @@ export class App {
     });
 
     //DEFI
-    this.app.get("/defi/themes", async (req, res) => {
+    this.app.get("/defi/themes/:idPartie", async (req, res) => {
+      const idPartie = parseInt(req.params.idPartie);
       try {
-        const themesLibelles = await this.defiController.getLibelleThemes();
+        const themesLibelles =
+          await this.defiController.getLibelleThemes(idPartie);
         res.json(themesLibelles);
       } catch (error) {
         console.error(
@@ -262,9 +353,10 @@ export class App {
       }
     });
 
-    this.app.get("/defi/champion", async (req, res) => {
+    this.app.get("/defi/champion/:idPartie", async (req, res) => {
       try {
-        const champion = await this.defiController.getChampion();
+        const idPartie = Number.parseInt(req.params.idPartie);
+        const champion = await this.defiController.getChampion(idPartie);
         res.json(champion.nom_champion);
       } catch (error) {
         console.error("Erreur lors de la récupération du champion", error);
@@ -272,10 +364,11 @@ export class App {
       }
     });
 
-    this.app.put("/defi/champion", async (req, res) => {
+    this.app.put("/defi/champion/:idPartie", async (req, res) => {
       try {
+        const idPartie = Number.parseInt(req.params.idPartie);
         const newChampion = req.body.newChampion;
-        await this.defiController.putChampion(newChampion);
+        await this.defiController.putChampion(idPartie, newChampion);
         res.json(true);
       } catch (error) {
         console.error("Erreur lors de la récupération du champion", error);
