@@ -9,10 +9,12 @@ import { Defi } from "./models/defi.model";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { PartieController } from "./controllers/partie.controller";
+import { QuestionController } from "./controllers/question.controller";
 
 export class App {
   app: Application;
   partieController: PartieController;
+  questionsController: QuestionController;
   qualifsController: QualifsController;
   competController: CompetController;
   defiController: DefiController;
@@ -23,6 +25,7 @@ export class App {
   constructor() {
     this.app = express();
     this.partieController = new PartieController();
+    this.questionsController = new QuestionController();
     this.qualifsController = new QualifsController();
     this.competController = new CompetController();
     this.defiController = new DefiController();
@@ -129,6 +132,19 @@ export class App {
       } catch (error) {
         console.error(
           "Erreur lors de la récupération des themes du defi:",
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+    // QUESTIONS
+    this.app.get("/questions", async (req, res) => {
+      try {
+        const allQuestions = await this.questionsController.getAllQuestions();
+        res.json(allQuestions);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération de toutes les questions:",
           error,
         );
         res.status(500).json({ error: "Erreur serveur" });
