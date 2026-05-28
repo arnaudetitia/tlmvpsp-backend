@@ -12,6 +12,7 @@ export class QuestionController {
 	    	WHEN t.id in (SELECT id FROM tlmvpsp.themes_defi ) THEN 'DEFI'
 	    	ELSE 'QUALIFS'
 	    END as manche_question,
+		t.id as id_theme,
 	    t.libelle as libelle_theme,
 	    qt.ordre,
 	    q.question,
