@@ -2,6 +2,10 @@
 GET http://localhost:3033/parties
 Content-Type: application/json
 
+### Récupérer l'intégralité des questions
+GET http://localhost:3033/questions
+Content-Type: application/json
+
 ### Récupérer les qualifs
 GET http://localhost:3033/qualifs/1
 Content-Type: application/json
