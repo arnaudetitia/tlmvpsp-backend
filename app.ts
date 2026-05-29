@@ -119,7 +119,14 @@ export class App {
     this.app.get("/parties/compet", async (req, res) => {
       try {
         const themesCompet = await this.partieController.getAllThemesCompet();
-        res.json(themesCompet);
+        res.json(
+          themesCompet.map((theme) => {
+            return {
+              ...theme,
+              id: Number(theme.id),
+            };
+          }),
+        );
       } catch (error) {
         console.error(
           "Erreur lors de la récupération des themes de la compet:",
@@ -131,7 +138,14 @@ export class App {
     this.app.get("/parties/defi", async (req, res) => {
       try {
         const themesDefi = await this.partieController.getAllThemesDefi();
-        res.json(themesDefi);
+        res.json(
+          themesDefi.map((theme) => {
+            return {
+              ...theme,
+              id: Number(theme.id),
+            };
+          }),
+        );
       } catch (error) {
         console.error(
           "Erreur lors de la récupération des themes du defi:",
