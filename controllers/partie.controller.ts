@@ -10,13 +10,14 @@ export class PartieController {
         champ.nom_lignee,
         champ.nom_champion,
         (
-            SELECT JSON_AGG(JSON_BUILD_OBJECT('question', q.question, 'bonneReponse', q.bonne_reponse))
+            SELECT JSON_AGG(JSON_BUILD_OBJECT('idQuestion',q.id,'question', q.question, 'bonneReponse', q.bonne_reponse))
             FROM tlmvpsp.questions q
             WHERE q.id = ANY(p.ids_questions_qualif)
         ) AS questions_qualifs,
+        tc.id AS id_compet,
         tc.libelle AS theme_compet,
         (
-            SELECT ARRAY_AGG(td.libelle)
+            SELECT JSON_AGG(JSON_BUILD_OBJECT('idTheme', td.id, 'libelleTheme', td.libelle))
             FROM tlmvpsp.themes_defi td
             WHERE td.id = ANY(p.ids_themes_defi)
         ) AS themes_defi
