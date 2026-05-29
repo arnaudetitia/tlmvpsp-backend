@@ -56,14 +56,17 @@ export class App {
     this.app.get("/parties", async (req, res) => {
       try {
         const parties = await this.partieController.getAllParties();
-        res.json(parties);
+        res.json(
+          parties.map((partie) => {
+            return { ...partie, id_compet: Number(partie.id_compet) };
+          }),
+        );
       } catch (error) {
         console.error("Erreur lors de la récupération des parties:", error);
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
     this.app.post("/parties", async (req, res) => {
-      console.log(req.body);
       try {
         const nomPartie = req.body.nomPartie;
         const idsQuestionsQualifs = req.body.idsQuestionsQualifs;
@@ -141,7 +144,14 @@ export class App {
     this.app.get("/questions", async (req, res) => {
       try {
         const allQuestions = await this.questionsController.getAllQuestions();
-        res.json(allQuestions);
+        res.json(
+          allQuestions.map((question) => {
+            return {
+              ...question,
+              id: Number(question.id),
+            };
+          }),
+        );
       } catch (error) {
         console.error(
           "Erreur lors de la récupération de toutes les questions:",
