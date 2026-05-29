@@ -149,6 +149,7 @@ export class App {
             return {
               ...question,
               id: Number(question.id),
+              id_theme: question.id_theme ? Number(question.id_theme) : null,
             };
           }),
         );
