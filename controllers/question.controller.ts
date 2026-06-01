@@ -35,6 +35,40 @@ export class QuestionController {
     return result.rows;
   }
 
+  public async createQuestion(question: any) {
+    const pool = database.Database.getPool();
+    await pool.query("BEGIN");
+    try {
+      const result = await pool.query({
+        text: `
+        INSERT INTO tlmvpsp.questions(question, bonne_reponse, mauvaises_reponses, tri)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+        `,
+        values: [
+          question.question,
+          question.bonneReponse,
+          question.mauvaisesReponses,
+          question.tri,
+        ],
+      });
+      const idQuestion = result.rows[0].id;
+      if (question.musique) {
+        await pool.query({
+          text: `
+		      INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
+		      VALUES ($1, $2, $3)
+		      `,
+          values: [idQuestion, question.musique, question.joueeApresQuestion],
+        });
+      }
+      await pool.query("COMMIT");
+    } catch (error) {
+      await pool.query("ROLLBACK");
+      throw error;
+    }
+  }
+
   public async updateQuestion(idQuestion: number, question: QuestionVo) {
     const pool = database.Database.getPool();
     await pool.query("BEGIN");
