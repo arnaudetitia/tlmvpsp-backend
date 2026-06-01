@@ -18,6 +18,7 @@ export class App {
   qualifsController: QualifsController;
   competController: CompetController;
   defiController: DefiController;
+  upload: any;
 
   httpServer: any;
   io: Server;
@@ -39,6 +40,8 @@ export class App {
         allowedHeaders: ["Content-Type", "Authorization"],
       },
     });
+    this.configureStorage();
+    this;
     this.routes();
   }
 
@@ -49,6 +52,25 @@ export class App {
       }),
     );
     this.app.use(express.json());
+  }
+
+  configureStorage() {
+    const multer = require("multer");
+    const storage = multer.diskStorage({
+      destination: function (req: any, file: any, cb: any) {
+        cb(
+          null,
+          path.join(
+            __dirname,
+            "../../../Projets Angular/tlmvpsp-frontend/src/assets/extraits/",
+          ),
+        );
+      },
+      filename: function (req: any, file: any, cb: any) {
+        cb(null, file.originalname);
+      },
+    });
+    this.upload = multer({ storage: storage });
   }
 
   private routes(): void {
@@ -175,6 +197,26 @@ export class App {
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
+    this.app.put(
+      "/questions/:idQuestion",
+      this.upload.single("musicFile"),
+      async (req, res) => {
+        console.log(req.body);
+        try {
+          const idQuestion = parseInt(req.params.idQuestion);
+          const question = JSON.parse(req.body.question);
+          await this.questionsController.updateQuestion(idQuestion, question);
+          const allQuestions = await this.questionsController.getAllQuestions();
+          res.json(allQuestions);
+        } catch (error) {
+          console.error(
+            "Erreur lors de la modification d'une questions:",
+            error,
+          );
+          res.status(500).json({ error: "Erreur serveur" });
+        }
+      },
+    );
     //QUALIFS
     this.app.get("/qualifs/:idPartie", async (req, res) => {
       const idPartie = parseInt(req.params.idPartie);
