@@ -197,12 +197,27 @@ export class App {
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
+    this.app.post(
+      "/questions",
+      this.upload.single("musicFile"),
+      async (req, res) => {
+        try {
+          const question = JSON.parse(req.body.question);
+          await this.questionsController.createQuestion(question);
+          const allQuestions = await this.questionsController.getAllQuestions();
+          res.json(allQuestions);
+        } catch (error) {
+          console.error("Erreur lors de la création d'une question:", error);
+          res.status(500).json({ error: "Erreur serveur" });
+        }
+      },
+    );
     this.app.put(
       "/questions/:idQuestion",
       this.upload.single("musicFile"),
       async (req, res) => {
-        console.log(req.body);
         try {
+          console.log(req.body);
           const idQuestion = parseInt(req.params.idQuestion);
           const question = JSON.parse(req.body.question);
           await this.questionsController.updateQuestion(idQuestion, question);
@@ -210,7 +225,7 @@ export class App {
           res.json(allQuestions);
         } catch (error) {
           console.error(
-            "Erreur lors de la modification d'une questions:",
+            "Erreur lors de la modification d'une question:",
             error,
           );
           res.status(500).json({ error: "Erreur serveur" });
