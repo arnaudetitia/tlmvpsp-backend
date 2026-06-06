@@ -523,7 +523,7 @@ export class QuestionController {
       const themeId = (
         await pool.query(
           `
-        INSERT INTO tlmvpsp.themes_compet(theme)
+        INSERT INTO tlmvpsp.themes(libelle)
         VALUES ($1) RETURNING id
         `,
           [theme],
