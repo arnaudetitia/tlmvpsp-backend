@@ -259,6 +259,7 @@ export class App {
               csvContent,
               doImport,
             );
+            break;
           default:
             console.warn(
               `Manche ${manche} non reconnue pour l'import de questions ( en tout cas pas encore) `,
@@ -266,10 +267,10 @@ export class App {
             break;
         }
         if (erreurs.length > 0) {
-          res.json(erreurs);
+          res.json({ erreurs, questions: [] });
         } else {
           const allQuestions = await this.questionsController.getAllQuestions();
-          res.json(allQuestions);
+          res.json({ erreurs: [], questions: allQuestions });
         }
       } catch (error) {
         console.error("Erreur lors de l'import des questions':", error);

@@ -207,6 +207,7 @@ export class QuestionController {
           tri: record[CSVQualifsColumns.TRI],
         } as QuestionVo;
       });
+      console.log(questionVoList);
       await this.createQuestionsFromImport(questionVoList);
     }
     return erreurs;
@@ -574,19 +575,21 @@ export class QuestionController {
 
   private async createQuestionsFromImport(questionVoList: QuestionVo[]) {
     const pool = database.Database.getPool();
-    const queryFormated = format(
-      `
+    for (let question of questionVoList) {
+      await pool.query({
+        text: `
       INSERT INTO tlmvpsp.questions(question, bonne_reponse, mauvaises_reponses, tri)
-      VALUES %L
+      VALUES ($1, $2, $3, $4 )
       `,
-      questionVoList.map((question) => [
-        question.question,
-        question.bonneReponse,
-        question.mauvaisesReponses,
-        question.tri,
-      ]),
-    );
-    await pool.query(queryFormated);
+        values: [
+          question.question,
+          question.bonneReponse,
+          question.mauvaisesReponses,
+          question.tri,
+        ],
+      });
+    }
+
     await pool.query("REFRESH MATERIALIZED VIEW tlmvpsp.questions_qualifs");
   }
 
@@ -601,7 +604,7 @@ export class QuestionController {
       const themeId = (
         await pool.query(
           `
-        INSERT INTO tlmvpsp.defis(theme)
+        INSERT INTO tlmvpsp.theme(libelle)
         VALUES ($1) RETURNING id
         `,
           [theme],
