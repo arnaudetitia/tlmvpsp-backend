@@ -207,7 +207,6 @@ export class QuestionController {
           tri: record[CSVQualifsColumns.TRI],
         } as QuestionVo;
       });
-      console.log(questionVoList);
       await this.createQuestionsFromImport(questionVoList);
     }
     return erreurs;
