@@ -1,0 +1,31 @@
+export enum CSVQualifsColumns {
+  QUESTION = 0,
+  BONNE_REPONSE = 1,
+  MAUVAISE_REPONSE_1 = 2,
+  MAUVAISE_REPONSE_2 = 3,
+  MAUVAISE_REPONSE_3 = 4,
+  TRI = 5,
+}
+
+export enum CSVDefiColumns {
+  THEME = 0,
+  ORDRE = 1,
+  QUESTION = 2,
+  BONNE_REPONSE = 3,
+  MAUVAISE_REPONSE_1 = 4,
+  MAUVAISE_REPONSE_2 = 5,
+  MAUVAISE_REPONSE_3 = 6,
+  TRI = 7,
+}
+
+export enum CSVCompetColumns {
+  THEME = 0,
+  ORDRE = 1,
+  QUESTION = 2,
+  BONNE_REPONSE = 3,
+  MAUVAISE_REPONSE_1 = 4,
+  MAUVAISE_REPONSE_2 = 5,
+  MAUVAISE_REPONSE_3 = 6,
+  TRI = 7,
+  ALIASES = 8,
+}

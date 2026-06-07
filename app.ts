@@ -10,6 +10,7 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import { PartieController } from "./controllers/partie.controller";
 import { QuestionController } from "./controllers/question.controller";
+import { ErreurImportFichier } from "./models/erreur-import-fichier.model";
 
 export class App {
   app: Application;
@@ -232,6 +233,50 @@ export class App {
         }
       },
     );
+    this.app.post("/questions/import", async (req, res) => {
+      try {
+        const manche = req.body.manche;
+        const csvContent = req.body.csvFileContent;
+        const doImport = req.body.doImport;
+        let erreurs: ErreurImportFichier[] = [];
+        switch (manche) {
+          case "QUALIFS":
+            erreurs = await this.questionsController.importQuestionsQualifs(
+              csvContent,
+              doImport,
+            );
+            break;
+
+          case "COMPET":
+            erreurs = await this.questionsController.importQuestionsCompet(
+              csvContent,
+              doImport,
+            );
+            break;
+
+          case "DEFI":
+            erreurs = await this.questionsController.importQuestionsDefi(
+              csvContent,
+              doImport,
+            );
+            break;
+          default:
+            console.warn(
+              `Manche ${manche} non reconnue pour l'import de questions ( en tout cas pas encore) `,
+            );
+            break;
+        }
+        if (erreurs.length > 0) {
+          res.json({ erreurs, questions: [] });
+        } else {
+          const allQuestions = await this.questionsController.getAllQuestions();
+          res.json({ erreurs: [], questions: allQuestions });
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'import des questions':", error);
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
     //QUALIFS
     this.app.get("/qualifs/:idPartie", async (req, res) => {
       const idPartie = parseInt(req.params.idPartie);
