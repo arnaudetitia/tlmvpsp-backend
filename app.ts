@@ -206,7 +206,15 @@ export class App {
           const question = JSON.parse(req.body.question);
           await this.questionsController.createQuestion(question);
           const allQuestions = await this.questionsController.getAllQuestions();
-          res.json(allQuestions);
+          res.json(
+            allQuestions.map((question) => {
+              return {
+                ...question,
+                id: Number(question.id),
+                id_theme: question.id_theme ? Number(question.id_theme) : null,
+              };
+            }),
+          );
         } catch (error) {
           console.error("Erreur lors de la création d'une question:", error);
           res.status(500).json({ error: "Erreur serveur" });
@@ -223,7 +231,15 @@ export class App {
           const question = JSON.parse(req.body.question);
           await this.questionsController.updateQuestion(idQuestion, question);
           const allQuestions = await this.questionsController.getAllQuestions();
-          res.json(allQuestions);
+          res.json(
+            allQuestions.map((question) => {
+              return {
+                ...question,
+                id: Number(question.id),
+                id_theme: question.id_theme ? Number(question.id_theme) : null,
+              };
+            }),
+          );
         } catch (error) {
           console.error(
             "Erreur lors de la modification d'une question:",
@@ -270,7 +286,16 @@ export class App {
           res.json({ erreurs, questions: [] });
         } else {
           const allQuestions = await this.questionsController.getAllQuestions();
-          res.json({ erreurs: [], questions: allQuestions });
+          res.json({
+            erreurs: [],
+            questions: allQuestions.map((question) => {
+              return {
+                ...question,
+                id: Number(question.id),
+                id_theme: question.id_theme ? Number(question.id_theme) : null,
+              };
+            }),
+          });
         }
       } catch (error) {
         console.error("Erreur lors de l'import des questions':", error);
