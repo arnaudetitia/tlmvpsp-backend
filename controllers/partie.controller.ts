@@ -88,8 +88,8 @@ export class PartieController {
     const pool = database.Database.getPool();
     await pool.query({
       text: `
-      INSERT INTO tlmvpsp.parties(nom_partie, ids_questions_qualif, id_theme_compet, ids_themes_defi, id_champion )
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO tlmvpsp.parties(nom_partie, ids_questions_qualif, id_theme_compet, ids_themes_defi, id_champion, code_champion )
+      VALUES ($1, $2, $3, $4, $5, $6)
       `,
       values: [
         nomPartie,
@@ -97,7 +97,20 @@ export class PartieController {
         idThemeCompet,
         idsThemesDefi,
         idChampion,
+        this.getNewCodeChampion(),
       ],
     });
+  }
+
+  getNewCodeChampion() {
+    let code = "";
+
+    const allChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    for (let i = 0; i < 12; i++) {
+      code += allChars.charAt(Math.random() * allChars.length);
+    }
+
+    return code;
   }
 }
