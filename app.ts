@@ -177,6 +177,27 @@ export class App {
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
+
+    this.app.put("/parties/:idPartie/flag", async (req, res) => {
+      const idPartie = Number.parseInt(req.params.idPartie);
+      try {
+        await this.partieController.flagPartieEncours(true, idPartie);
+        res.json(true);
+      } catch (error) {
+        console.error("Erreur lors du flag d'une partie:", error);
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+
+    this.app.put("/parties/unflag", async (req, res) => {
+      try {
+        await this.partieController.flagPartieEncours(false);
+        res.json(true);
+      } catch (error) {
+        console.error("Erreur lors de l'unflag d'une partie:", error);
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
     // QUESTIONS
     this.app.get("/questions", async (req, res) => {
       try {
@@ -226,7 +247,6 @@ export class App {
       this.upload.single("musicFile"),
       async (req, res) => {
         try {
-          console.log(req.body);
           const idQuestion = parseInt(req.params.idQuestion);
           const question = JSON.parse(req.body.question);
           await this.questionsController.updateQuestion(idQuestion, question);

@@ -1,3 +1,4 @@
+import { QueryConfig } from "pg";
 import database = require("../database");
 
 export class PartieController {
@@ -100,6 +101,31 @@ export class PartieController {
         this.getNewCodeChampion(),
       ],
     });
+  }
+
+  public async flagPartieEncours(flag: boolean, idPartie?: number) {
+    const pool = database.Database.getPool();
+    let query = {} as QueryConfig;
+    if (flag) {
+      query = {
+        text: `
+      UPDATE tlmvpsp.parties
+      SET en_cours = TRUE
+      WHERE id = $1
+      `,
+        values: [idPartie],
+      };
+    } else {
+      query = {
+        text: `
+          UPDATE tlmvpsp.parties
+          SET en_cours = FALSE
+          WHERE en_cours = TRUE
+        `,
+      };
+    }
+
+    await pool.query(query);
   }
 
   getNewCodeChampion() {
