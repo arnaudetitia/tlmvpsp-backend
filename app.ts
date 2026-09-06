@@ -401,13 +401,10 @@ export class App {
     });
 
     this.app.put("/compet/champion/check", async (req, res) => {
-      console.log("coucou");
       const appCodeChampion = req.body.appCodeChampion;
       try {
         const codeChampion =
           await this.partieController.getCodeChampionForCurrentPartie();
-        console.log(appCodeChampion);
-        console.log(codeChampion);
         if (codeChampion && codeChampion.localeCompare(appCodeChampion) === 0) {
           res.status(200).json(true);
         } else {
