@@ -40,6 +40,16 @@ export class CompetController {
     });
   }
 
+  public async deconnectJoueur(nomJoueur: string) {
+    const pool = database.Database.getPool();
+    await pool.query({
+      text: `UPDATE tlmvpsp.joueurs_compet
+            SET connected = FALSE
+            WHERE nom_joueur = $1`,
+      values: [nomJoueur],
+    });
+  }
+
   public async getCompetByTheme(idPartie: number) {
     const pool = database.Database.getPool();
     const result = await pool.query({

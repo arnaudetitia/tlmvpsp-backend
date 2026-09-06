@@ -386,6 +386,20 @@ export class App {
       }
     });
 
+    this.app.put("/compet/joueurs/deconnect", async (req, res) => {
+      const nomJoueurToDeconnect = req.body?.nomJoueur ?? req.query.nomJoueur;
+      try {
+        await this.competController.deconnectJoueur(nomJoueurToDeconnect);
+        res.json(true);
+      } catch (error) {
+        console.error(
+          `Erreur lors de la deconnexion du joueur ${nomJoueurToDeconnect} :`,
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+
     this.app.get("/compet/questions/:idPartie", async (req, res) => {
       const idPartie = parseInt(req.params.idPartie);
       try {
