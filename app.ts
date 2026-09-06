@@ -400,6 +400,22 @@ export class App {
       }
     });
 
+    this.app.put("/compet/champion/check", async (req, res) => {
+      const appCodeChampion = req.body.appCodeChampion;
+      try {
+        const codeChampion =
+          await this.partieController.getCodeChampionForCurrentPartie();
+        if (codeChampion && codeChampion.localeCompare(appCodeChampion) === 0) {
+          res.status(200).json(true);
+        } else {
+          res.status(403).json({ error: "Code champion incorrect" });
+        }
+      } catch (error) {
+        console.error(`Erreur lors du check du code champion:`, error);
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+
     this.app.get("/compet/questions/:idPartie", async (req, res) => {
       const idPartie = parseInt(req.params.idPartie);
       try {
