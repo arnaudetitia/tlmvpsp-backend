@@ -128,6 +128,19 @@ export class PartieController {
     await pool.query(query);
   }
 
+  public async getCodeChampionForCurrentPartie() {
+    const pool = database.Database.getPool();
+    const result = await pool.query({
+      text: `
+        SELECT code_champion
+        FROM tlmvpsp.parties
+        WHERE en_cours IS TRUE
+      `,
+    });
+
+    return result.rows ? result.rows[0]["code_champion"] : null;
+  }
+
   getNewCodeChampion() {
     let code = "";
 
