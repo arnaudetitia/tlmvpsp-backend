@@ -128,17 +128,21 @@ export class PartieController {
     await pool.query(query);
   }
 
-  public async getCodeChampionForCurrentPartie() {
+  public async getPartieWithCodeChampion(appCodeChampion: string) {
     const pool = database.Database.getPool();
     const result = await pool.query({
       text: `
-        SELECT code_champion
-        FROM tlmvpsp.parties
+        SELECT p.id
+        FROM tlmvpsp.parties p
         WHERE en_cours IS TRUE
+        AND p.code_champion = $1
       `,
+      values: [appCodeChampion],
     });
 
-    return result.rows ? result.rows[0]["code_champion"] : null;
+    return result.rows && result.rowCount && result.rowCount > 0
+      ? result.rows[0]["id"]
+      : null;
   }
 
   getNewCodeChampion() {

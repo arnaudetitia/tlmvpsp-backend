@@ -403,10 +403,24 @@ export class App {
     this.app.put("/compet/champion/check", async (req, res) => {
       const appCodeChampion = req.body.appCodeChampion;
       try {
-        const codeChampion =
-          await this.partieController.getCodeChampionForCurrentPartie();
-        if (codeChampion && codeChampion.localeCompare(appCodeChampion) === 0) {
-          res.status(200).json(true);
+        const idPartie =
+          await this.partieController.getPartieWithCodeChampion(
+            appCodeChampion,
+          );
+        if (idPartie) {
+          const compet = await this.competController.getCompetByTheme(idPartie);
+          const competSuperCashResult = {
+            libelle_theme:
+              compet.length > 0 ? compet[0].libelle_theme : "Inconnu",
+            questions_super_cash: compet
+              .filter((item) => item.ordre >= 9)
+              .map((item) => ({
+                question: item.question,
+                bonne_reponse: item.bonne_reponse,
+                ordre: item.ordre - 8,
+              })),
+          };
+          res.status(200).json(competSuperCashResult);
         } else {
           res.status(403).json({ error: "Code champion incorrect" });
         }
