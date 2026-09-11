@@ -177,6 +177,27 @@ export class App {
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
+
+    this.app.put("/parties/:idPartie/flag", async (req, res) => {
+      const idPartie = Number.parseInt(req.params.idPartie);
+      try {
+        await this.partieController.flagPartieEncours(true, idPartie);
+        res.json(true);
+      } catch (error) {
+        console.error("Erreur lors du flag d'une partie:", error);
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+
+    this.app.put("/parties/unflag", async (req, res) => {
+      try {
+        await this.partieController.flagPartieEncours(false);
+        res.json(true);
+      } catch (error) {
+        console.error("Erreur lors de l'unflag d'une partie:", error);
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
     // QUESTIONS
     this.app.get("/questions", async (req, res) => {
       try {
@@ -226,7 +247,6 @@ export class App {
       this.upload.single("musicFile"),
       async (req, res) => {
         try {
-          console.log(req.body);
           const idQuestion = parseInt(req.params.idQuestion);
           const question = JSON.parse(req.body.question);
           await this.questionsController.updateQuestion(idQuestion, question);
@@ -362,6 +382,50 @@ export class App {
           `Erreur lors de la connexion du joueur ${nomJoueurToConnect} :`,
           error,
         );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+
+    this.app.put("/compet/joueurs/deconnect", async (req, res) => {
+      const nomJoueurToDeconnect = req.body?.nomJoueur ?? req.query.nomJoueur;
+      try {
+        await this.competController.deconnectJoueur(nomJoueurToDeconnect);
+        res.json(true);
+      } catch (error) {
+        console.error(
+          `Erreur lors de la deconnexion du joueur ${nomJoueurToDeconnect} :`,
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+
+    this.app.put("/compet/champion/check", async (req, res) => {
+      const appCodeChampion = req.body.appCodeChampion;
+      try {
+        const idPartie =
+          await this.partieController.getPartieWithCodeChampion(
+            appCodeChampion,
+          );
+        if (idPartie) {
+          const compet = await this.competController.getCompetByTheme(idPartie);
+          const competSuperCashResult = {
+            libelle_theme:
+              compet.length > 0 ? compet[0].libelle_theme : "Inconnu",
+            questions_super_cash: compet
+              .filter((item) => item.ordre >= 9)
+              .map((item) => ({
+                question: item.question,
+                bonne_reponse: item.bonne_reponse,
+                ordre: item.ordre - 8,
+              })),
+          };
+          res.status(200).json(competSuperCashResult);
+        } else {
+          res.status(403).json({ error: "Code champion incorrect" });
+        }
+      } catch (error) {
+        console.error(`Erreur lors du check du code champion:`, error);
         res.status(500).json({ error: "Erreur serveur" });
       }
     });

@@ -1,3 +1,4 @@
+import { QueryConfig } from "pg";
 import database = require("../database");
 
 export class PartieController {
@@ -88,8 +89,8 @@ export class PartieController {
     const pool = database.Database.getPool();
     await pool.query({
       text: `
-      INSERT INTO tlmvpsp.parties(nom_partie, ids_questions_qualif, id_theme_compet, ids_themes_defi, id_champion )
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO tlmvpsp.parties(nom_partie, ids_questions_qualif, id_theme_compet, ids_themes_defi, id_champion, code_champion )
+      VALUES ($1, $2, $3, $4, $5, $6)
       `,
       values: [
         nomPartie,
@@ -97,7 +98,62 @@ export class PartieController {
         idThemeCompet,
         idsThemesDefi,
         idChampion,
+        this.getNewCodeChampion(),
       ],
     });
+  }
+
+  public async flagPartieEncours(flag: boolean, idPartie?: number) {
+    const pool = database.Database.getPool();
+    let query = {} as QueryConfig;
+    if (flag) {
+      query = {
+        text: `
+      UPDATE tlmvpsp.parties
+      SET en_cours = TRUE
+      WHERE id = $1
+      `,
+        values: [idPartie],
+      };
+    } else {
+      query = {
+        text: `
+          UPDATE tlmvpsp.parties
+          SET en_cours = FALSE
+          WHERE en_cours = TRUE
+        `,
+      };
+    }
+
+    await pool.query(query);
+  }
+
+  public async getPartieWithCodeChampion(appCodeChampion: string) {
+    const pool = database.Database.getPool();
+    const result = await pool.query({
+      text: `
+        SELECT p.id
+        FROM tlmvpsp.parties p
+        WHERE en_cours IS TRUE
+        AND p.code_champion = $1
+      `,
+      values: [appCodeChampion],
+    });
+
+    return result.rows && result.rowCount && result.rowCount > 0
+      ? result.rows[0]["id"]
+      : null;
+  }
+
+  getNewCodeChampion() {
+    let code = "";
+
+    const allChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    for (let i = 0; i < 12; i++) {
+      code += allChars.charAt(Math.random() * allChars.length);
+    }
+
+    return code;
   }
 }
