@@ -1,0 +1,2 @@
+DATABASE_URL=postgresql://postgres:BobAdmin7068@db.qzbbzhygbgzincuuuzqa.supabase.co:5432/postgres
+ADMIN_PASSWORD=test_admin
