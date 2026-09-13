@@ -371,10 +371,12 @@ export class QuestionController {
             return {
               question: record[CSVCompetColumns.QUESTION],
               bonneReponse: record[CSVCompetColumns.BONNE_REPONSE],
-              mauvaisesReponses: record.slice(
-                CSVCompetColumns.MAUVAISE_REPONSE_1,
-                CSVCompetColumns.MAUVAISE_REPONSE_3 + 1,
-              ),
+              mauvaisesReponses: record
+                .slice(
+                  CSVCompetColumns.MAUVAISE_REPONSE_1,
+                  CSVCompetColumns.MAUVAISE_REPONSE_3 + 1,
+                )
+                .filter((reponse) => reponse),
               tri: record[CSVCompetColumns.TRI],
               aliases: record[CSVCompetColumns.ALIASES]
                 ? record[CSVCompetColumns.ALIASES]
