@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
 import path from "path";
+import dotenv from "dotenv";
 import { QualifsController } from "./controllers/qualifs.controller";
 import { CompetController } from "./controllers/compet.controller";
 import { QuestionTheme } from "./models/compet.model";
@@ -47,6 +48,9 @@ export class App {
   }
 
   private config(): void {
+    dotenv.config({
+      path: `environments/environment.${process.env.NODE_ENV}`,
+    });
     this.app.use(
       cors({
         exposedHeaders: ["ngrok-skip-browser-warning"],
@@ -75,6 +79,19 @@ export class App {
   }
 
   private routes(): void {
+    //ADMIN
+
+    this.app.post("/admin", async (req, res) => {
+      console.log(process.env.NODE_ENV);
+      console.log(req.body.mdpAdmin);
+      console.log(process.env.DATABASE_URL);
+      console.log(process.env.ADMIN_PASSWORD);
+      if (req.body.mdpAdmin.localeCompare(process.env.ADMIN_PASSWORD) === 0) {
+        return res.status(200).json({ success: true });
+      }
+      return res.status(403).json({ error: "Mot de passe incorrect" });
+    });
+
     //PARTIES
     this.app.get("/parties", async (req, res) => {
       try {
