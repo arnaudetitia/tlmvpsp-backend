@@ -51,9 +51,24 @@ export class App {
     dotenv.config({
       path: `environments/environment.${process.env.NODE_ENV}`,
     });
+    const allowedOrigins = [
+      "https://localhost:4200",
+      "https://localhost:4210",
+      "https://tlmvpsp-remote.onrender.com",
+      "https://tlmvpsp-host.onrender.com",
+    ];
     this.app.use(
       cors({
-        exposedHeaders: ["ngrok-skip-browser-warning"],
+        origin: (origin, callback) => {
+          if (process.env.NODE_ENV === "prod") {
+            if (origin && allowedOrigins.includes(origin)) callback(null, true);
+            else {
+              callback(new Error("Interdit"));
+            }
+          } else {
+            callback(null, true);
+          }
+        },
       }),
     );
     this.app.use(express.json());
