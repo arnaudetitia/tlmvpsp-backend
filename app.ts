@@ -52,8 +52,8 @@ export class App {
       path: `environments/environment.${process.env.NODE_ENV}`,
     });
     const allowedOrigins = [
-      "https://localhost:4200",
-      "https://localhost:4210",
+      "http://localhost:4200",
+      "http://localhost:4210",
       "https://tlmvpsp-remote.onrender.com",
       "https://tlmvpsp-host.onrender.com",
     ];
@@ -97,6 +97,8 @@ export class App {
     //ADMIN
 
     this.app.post("/admin", async (req, res) => {
+      console.log(process.env.ADMIN_PASSWORD);
+      console.log(req.body.mdpAdmin);
       if (req.body.mdpAdmin.localeCompare(process.env.ADMIN_PASSWORD) === 0) {
         return res.status(200).json({ success: true });
       }
