@@ -76,21 +76,7 @@ export class App {
 
   configureStorage() {
     const multer = require("multer");
-    const storage = multer.diskStorage({
-      destination: function (req: any, file: any, cb: any) {
-        cb(
-          null,
-          path.join(
-            __dirname,
-            "../../../Projets Angular/tlmvpsp-frontend/src/assets/extraits/",
-          ),
-        );
-      },
-      filename: function (req: any, file: any, cb: any) {
-        cb(null, file.originalname);
-      },
-    });
-    this.upload = multer({ storage: storage });
+    this.upload = multer({ storage: multer.memoryStorage() });
   }
 
   private routes(): void {
@@ -249,12 +235,31 @@ export class App {
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
+
     this.app.post(
       "/questions",
       this.upload.single("musicFile"),
       async (req, res) => {
         try {
           const question = JSON.parse(req.body.question);
+          const musicFile = (
+            req as typeof req & {
+              file?: { originalname: string; buffer: Buffer };
+            }
+          ).file;
+          if (musicFile) {
+            if (path.extname(musicFile.originalname).toLowerCase() !== ".mp3") {
+              return res
+                .status(400)
+                .json({ error: "Le fichier doit être un MP3" });
+            }
+            question.musique =
+              question.musique || path.parse(musicFile.originalname).name;
+            await this.questionsController.uploadMusic(
+              question.musique,
+              musicFile.buffer,
+            );
+          }
           await this.questionsController.createQuestion(question);
           const allQuestions = await this.questionsController.getAllQuestions();
           res.json(

@@ -3,12 +3,12 @@ import { QuestionVo } from "../models/question.model";
 import { CsvReaderUtil } from "../utils/csv-reader.util";
 import { TriTypeEnum } from "../models/enum/tri.enum";
 import { ErreurImportFichier } from "../models/erreur-import-fichier.model";
-import format from "pg-format";
 import {
   CSVCompetColumns,
   CSVDefiColumns,
   CSVQualifsColumns,
 } from "../models/enum/csv-columns.enum";
+import { SupabaseStorageUtil } from "../utils/supabase-storage.util";
 
 export class QuestionController {
   public async getAllQuestions() {
@@ -76,6 +76,10 @@ export class QuestionController {
       await pool.query("ROLLBACK");
       throw error;
     }
+  }
+
+  public async uploadMusic(musicName: string, content: Buffer) {
+    await SupabaseStorageUtil.uploadMusic(musicName, content);
   }
 
   public async updateQuestion(idQuestion: number, question: QuestionVo) {
