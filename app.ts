@@ -268,7 +268,7 @@ export class App {
               question.musiqueQuestion ||
               path.parse(musicQuestionFile.originalname).name;
             await this.questionsController.uploadMusic(
-              question.musique,
+              question.musiqueQuestion,
               musicQuestionFile.buffer,
             );
           }
@@ -285,7 +285,7 @@ export class App {
               question.musiqueReponse ||
               path.parse(musicReponseFile.originalname).name;
             await this.questionsController.uploadMusic(
-              question.musique,
+              question.musiqueReponse,
               musicReponseFile.buffer,
             );
           }
@@ -507,7 +507,8 @@ export class App {
             mauvaises_reponses: item.mauvaises_reponses,
             tri: item.tri,
             ordre: item.ordre,
-            musique: item.musique,
+            musique_question: item.musique_question,
+            musique_reponse: item.musique_reponse,
             jouee_apres_question: item.jouee_apres_question,
             aliases: item.aliases,
           })),

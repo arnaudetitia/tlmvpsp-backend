@@ -75,7 +75,7 @@ export class QuestionController {
 		      INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
 		      VALUES ($1, $2, $3)
 		      `,
-          values: [idQuestion, question.musique, false],
+          values: [idQuestion, question.musiqueQuestion, false],
         });
       }
       if (question.musiqueReponse) {
@@ -84,7 +84,7 @@ export class QuestionController {
 		      INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
 		      VALUES ($1, $2, $3)
 		      `,
-          values: [idQuestion, question.musique, true],
+          values: [idQuestion, question.musiqueReponse, true],
         });
       }
       await pool.query("COMMIT");
