@@ -9,7 +9,7 @@ export interface Question {
   mauvaises_reponses: string[];
   tri: string;
   ordre: number;
-  musique: string;
-  jouee_apres_question: boolean;
+  musique_question: string;
+  musique_reponse: string;
   aliases?: string[];
 }

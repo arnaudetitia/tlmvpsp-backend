@@ -15,6 +15,12 @@ export class QuestionController {
     const pool = database.Database.getPool();
     const result = await pool.query(
       `
+    WITH musiques_question_table AS 
+      (SELECT * FROM tlmvpsp.musiques_question mq 
+      WHERE mq.jouee_apres_question IS FALSE),
+	  musiques_reponse_table AS 
+      (SELECT * FROM tlmvpsp.musiques_question mq 
+      WHERE mq.jouee_apres_question IS TRUE)
     SELECT 
 	    q.id,
 	    CASE 
@@ -22,7 +28,7 @@ export class QuestionController {
 	    	WHEN t.id in (SELECT id FROM tlmvpsp.themes_defi ) THEN 'DEFI'
 	    	ELSE 'QUALIFS'
 	    END as manche_question,
-		t.id as id_theme,
+		  t.id as id_theme,
 	    t.libelle as libelle_theme,
 	    qt.ordre,
 	    q.question,
@@ -30,13 +36,14 @@ export class QuestionController {
 	    q.mauvaises_reponses,
 	    q.tri,
 	    qca.aliases,
-	    mq.musique,
-	    mq.jouee_apres_question
+	    mq.musique as musique_question,
+	    mr.musique as musique_reponse
     FROM     
     	tlmvpsp.questions q
     	LEFT JOIN tlmvpsp.question_theme qt ON q.id = qt.id_question
     	LEFT JOIN tlmvpsp.theme t on qt.id_theme = t.id
-    	LEFT JOIN tlmvpsp.musiques_question mq on q.id = mq.id_question
+    	LEFT JOIN musiques_question_table mq on q.id = mq.id_question
+    	LEFT JOIN musiques_reponse_table mr on q.id = mr.id_question
     	LEFT JOIN tlmvpsp.question_cash_aliases qca on q.id = qca.id_question
     ORDER BY q.id
     `,
@@ -62,13 +69,22 @@ export class QuestionController {
         ],
       });
       const idQuestion = result.rows[0].id;
-      if (question.musique) {
+      if (question.musiqueQuestion) {
         await pool.query({
           text: `
 		      INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
 		      VALUES ($1, $2, $3)
 		      `,
-          values: [idQuestion, question.musique, question.joueeApresQuestion],
+          values: [idQuestion, question.musiqueQuestion, false],
+        });
+      }
+      if (question.musiqueReponse) {
+        await pool.query({
+          text: `
+		      INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
+		      VALUES ($1, $2, $3)
+		      `,
+          values: [idQuestion, question.musiqueReponse, true],
         });
       }
       await pool.query("COMMIT");
