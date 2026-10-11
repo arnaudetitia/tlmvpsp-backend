@@ -238,26 +238,55 @@ export class App {
 
     this.app.post(
       "/questions",
-      this.upload.single("musicFile"),
+      this.upload.fields([
+        { name: "musicQuestionFile", maxCount: 1 },
+        { name: "musicReponseFile", maxCount: 1 },
+      ]),
       async (req, res) => {
         try {
           const question = JSON.parse(req.body.question);
-          const musicFile = (
+          const files = (
             req as typeof req & {
-              file?: { originalname: string; buffer: Buffer };
+              files?: Record<
+                string,
+                { originalname: string; buffer: Buffer }[]
+              >;
             }
-          ).file;
-          if (musicFile) {
-            if (path.extname(musicFile.originalname).toLowerCase() !== ".mp3") {
+          ).files;
+          const musicQuestionFile = files?.musicQuestionFile?.[0];
+          const musicReponseFile = files?.musicReponseFile?.[0];
+          if (musicQuestionFile) {
+            if (
+              path.extname(musicQuestionFile.originalname).toLowerCase() !==
+              ".mp3"
+            ) {
               return res
                 .status(400)
-                .json({ error: "Le fichier doit être un MP3" });
+                .json({ error: "Le fichier question doit être un MP3" });
             }
-            question.musique =
-              question.musique || path.parse(musicFile.originalname).name;
+            question.musiqueQuestion =
+              question.musiqueQuestion ||
+              path.parse(musicQuestionFile.originalname).name;
             await this.questionsController.uploadMusic(
               question.musique,
-              musicFile.buffer,
+              musicQuestionFile.buffer,
+            );
+          }
+          if (musicReponseFile) {
+            if (
+              path.extname(musicReponseFile.originalname).toLowerCase() !==
+              ".mp3"
+            ) {
+              return res
+                .status(400)
+                .json({ error: "Le fichier réponse doit être un MP3" });
+            }
+            question.musiqueReponse =
+              question.musiqueReponse ||
+              path.parse(musicReponseFile.originalname).name;
+            await this.questionsController.uploadMusic(
+              question.musique,
+              musicReponseFile.buffer,
             );
           }
           await this.questionsController.createQuestion(question);
