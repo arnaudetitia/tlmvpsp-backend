@@ -120,7 +120,7 @@ export class QuestionController {
         ],
       });
 
-      if (question.musique) {
+      if (question.musiqueQuestion) {
         await pool.query({
           text: `
 		INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
@@ -130,13 +130,37 @@ export class QuestionController {
 		musique = EXCLUDED.musique,
 		jouee_apres_question = EXCLUDED.jouee_apres_question
 		`,
-          values: [idQuestion, question.musique, question.joueeApresQuestion],
+          values: [idQuestion, question.musiqueQuestion, false],
         });
       } else {
         await pool.query({
           text: `
         DELETE FROM  tlmvpsp.musiques_question
         WHERE id_question = $1
+        AND jouee_apres_question IS FALSE
+        `,
+          values: [idQuestion],
+        });
+      }
+
+      if (question.musiqueReponse) {
+        await pool.query({
+          text: `
+		INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
+		VALUES ($1, $2, $3)
+		ON CONFLICT (id_question)
+		DO UPDATE SET
+		musique = EXCLUDED.musique,
+		jouee_apres_question = EXCLUDED.jouee_apres_question
+		`,
+          values: [idQuestion, question.musiqueReponse, true],
+        });
+      } else {
+        await pool.query({
+          text: `
+        DELETE FROM  tlmvpsp.musiques_question
+        WHERE id_question = $1
+        AND jouee_apres_question IS TRUE
         `,
           values: [idQuestion],
         });
@@ -169,7 +193,11 @@ export class QuestionController {
     }
   }
 
-  public async importQuestionsQualifs(csvContent: string, doImport: boolean) {
+  public async importQuestionsQualifs(
+    csvContent: string,
+    listeMusique: string[],
+    doImport: boolean,
+  ) {
     const records = await CsvReaderUtil.parseRecords(csvContent);
     const erreurs: ErreurImportFichier[] = [];
 
@@ -214,6 +242,26 @@ export class QuestionController {
           message: `Valeur du champ "tri" invalide (doit être l'une des suivantes : ${triTypeEnumValues.join(", ")})`,
         });
       }
+      const musiqueQuestion = record[CSVQualifsColumns.MUSIQUE_QUESTION];
+      if (musiqueQuestion) {
+        if (!listeMusique.includes(musiqueQuestion)) {
+          erreurs.push({
+            ligne: index + 1,
+            type: "warning",
+            message: `L'extrait ${musiqueQuestion}.mp3 n'est pas dans le storage distant`,
+          });
+        }
+      }
+      const musiqueReponse = record[CSVQualifsColumns.MUSIQUE_REPONSE];
+      if (musiqueReponse) {
+        if (!listeMusique.includes(musiqueReponse)) {
+          erreurs.push({
+            ligne: index + 1,
+            type: "warning",
+            message: `L'extrait ${musiqueReponse}.mp3 n'est pas dans le storage distant`,
+          });
+        }
+      }
     });
     if (doImport && erreurs.length === 0) {
       const questionVoList: QuestionVo[] = records.map((record: string[]) => {
@@ -224,6 +272,8 @@ export class QuestionController {
             CSVQualifsColumns.MAUVAISE_REPONSE_1,
             CSVQualifsColumns.MAUVAISE_REPONSE_3 + 1,
           ),
+          musiqueQuestion: record[CSVQualifsColumns.MUSIQUE_QUESTION],
+          musiqueReponse: record[CSVQualifsColumns.MUSIQUE_REPONSE],
           tri: record[CSVQualifsColumns.TRI],
         } as QuestionVo;
       });
@@ -232,7 +282,11 @@ export class QuestionController {
     return erreurs;
   }
 
-  public async importQuestionsCompet(csvContent: string, doImport: boolean) {
+  public async importQuestionsCompet(
+    csvContent: string,
+    listeMusique: string[],
+    doImport: boolean,
+  ) {
     const records = await CsvReaderUtil.parseRecords(csvContent);
     const erreurs: ErreurImportFichier[] = [];
     records.forEach((record, index) => {
@@ -342,6 +396,26 @@ export class QuestionController {
             'Le champ "aliases" ne doit être renseigné que pour les questions d\'ordre 7 ou 8',
         });
       }
+      const musiqueQuestion = record[CSVCompetColumns.MUSIQUE_QUESTION];
+      if (musiqueQuestion) {
+        if (!listeMusique.includes(musiqueQuestion)) {
+          erreurs.push({
+            ligne: index + 1,
+            type: "warning",
+            message: `L'extrait ${musiqueQuestion}.mp3 n'est pas dans le storage distant`,
+          });
+        }
+      }
+      const musiqueReponse = record[CSVCompetColumns.MUSIQUE_REPONSE];
+      if (musiqueReponse) {
+        if (!listeMusique.includes(musiqueReponse)) {
+          erreurs.push({
+            ligne: index + 1,
+            type: "warning",
+            message: `L'extrait ${musiqueReponse}.mp3 n'est pas dans le storage distant`,
+          });
+        }
+      }
     });
     // on regroupe les questions par thème pour vérifier qu'on a bien 12 questions par thème, avec un ordre de 1 à 12 sans trou
     let competMap: Map<string, string[][]> = records.reduce((acc, record) => {
@@ -398,6 +472,8 @@ export class QuestionController {
                 )
                 .filter((reponse) => reponse),
               tri: record[CSVCompetColumns.TRI],
+              musiqueQuestion: record[CSVCompetColumns.MUSIQUE_QUESTION],
+              musiqueReponse: record[CSVCompetColumns.MUSIQUE_REPONSE],
               aliases: record[CSVCompetColumns.ALIASES]
                 ? record[CSVCompetColumns.ALIASES]
                     .split(",")
@@ -568,6 +644,34 @@ export class QuestionController {
 
         const questionId = result.rows[0].id;
 
+        if (questionVo.musiqueQuestion) {
+          await pool.query({
+            text: `
+		          INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
+		          VALUES ($1, $2, $3)
+		          ON CONFLICT (id_question, jouee_apres_question)
+		          DO UPDATE SET
+		          musique = EXCLUDED.musique,
+		          jouee_apres_question = EXCLUDED.jouee_apres_question
+		          `,
+            values: [questionId, questionVo.musiqueQuestion, false],
+          });
+        }
+
+        if (questionVo.musiqueReponse) {
+          await pool.query({
+            text: `
+		          INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
+		          VALUES ($1, $2, $3)
+		          ON CONFLICT (id_question, jouee_apres_question)
+		          DO UPDATE SET
+		          musique = EXCLUDED.musique,
+		          jouee_apres_question = EXCLUDED.jouee_apres_question
+		          `,
+            values: [questionId, questionVo.musiqueReponse, true],
+          });
+        }
+
         if (questionVo.aliases && questionVo.aliases.length > 0) {
           await pool.query(
             `
@@ -596,22 +700,60 @@ export class QuestionController {
 
   private async createQuestionsFromImport(questionVoList: QuestionVo[]) {
     const pool = database.Database.getPool();
-    for (let question of questionVoList) {
-      await pool.query({
-        text: `
-      INSERT INTO tlmvpsp.questions(question, bonne_reponse, mauvaises_reponses, tri)
-      VALUES ($1, $2, $3, $4 )
-      `,
-        values: [
-          question.question,
-          question.bonneReponse,
-          question.mauvaisesReponses,
-          question.tri,
-        ],
-      });
-    }
+    try {
+      await pool.query("BEGIN");
+      for (let question of questionVoList) {
+        const result = await pool.query({
+          text: `
+            INSERT INTO tlmvpsp.questions(question, bonne_reponse, mauvaises_reponses, tri)
+            VALUES ($1, $2, $3, $4 )
+            RETURNING id
+            `,
+          values: [
+            question.question,
+            question.bonneReponse,
+            question.mauvaisesReponses,
+            question.tri,
+          ],
+        });
 
-    await pool.query("REFRESH MATERIALIZED VIEW tlmvpsp.questions_qualifs");
+        const questionId = result.rows[0].id;
+
+        if (question.musiqueQuestion) {
+          await pool.query({
+            text: `
+		          INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
+		          VALUES ($1, $2, $3)
+		          ON CONFLICT (id_question, jouee_apres_question)
+		          DO UPDATE SET
+		          musique = EXCLUDED.musique,
+		          jouee_apres_question = EXCLUDED.jouee_apres_question
+		          `,
+            values: [questionId, question.musiqueQuestion, false],
+          });
+        }
+
+        if (question.musiqueReponse) {
+          await pool.query({
+            text: `
+		          INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
+		          VALUES ($1, $2, $3)
+		          ON CONFLICT (id_question, jouee_apres_question)
+		          DO UPDATE SET
+		          musique = EXCLUDED.musique,
+		          jouee_apres_question = EXCLUDED.jouee_apres_question
+		          `,
+            values: [questionId, question.musiqueReponse, true],
+          });
+        }
+      }
+
+      await pool.query("REFRESH MATERIALIZED VIEW tlmvpsp.questions_qualifs");
+      await pool.query("COMMIT");
+    } catch (error) {
+      await pool.query("ROLLBACK");
+      throw error;
+    }
   }
 
   private async createDefiFromImport(

@@ -12,6 +12,7 @@ import { createServer } from "http";
 import { PartieController } from "./controllers/partie.controller";
 import { QuestionController } from "./controllers/question.controller";
 import { ErreurImportFichier } from "./models/erreur-import-fichier.model";
+import { SupabaseStorageUtil } from "./utils/supabase-storage.util";
 
 export class App {
   app: Application;
@@ -338,11 +339,14 @@ export class App {
         const manche = req.body.manche;
         const csvContent = req.body.csvFileContent;
         const doImport = req.body.doImport;
+        const listeMusiqueInStorage =
+          await SupabaseStorageUtil.getAllMusicInBucket();
         let erreurs: ErreurImportFichier[] = [];
         switch (manche) {
           case "QUALIFS":
             erreurs = await this.questionsController.importQuestionsQualifs(
               csvContent,
+              listeMusiqueInStorage,
               doImport,
             );
             break;
@@ -350,6 +354,7 @@ export class App {
           case "COMPET":
             erreurs = await this.questionsController.importQuestionsCompet(
               csvContent,
+              listeMusiqueInStorage,
               doImport,
             );
             break;
