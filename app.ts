@@ -339,10 +339,8 @@ export class App {
         const manche = req.body.manche;
         const csvContent = req.body.csvFileContent;
         const doImport = req.body.doImport;
-        console.log("coucou");
         const listeMusiqueInStorage =
           await SupabaseStorageUtil.getAllMusicInBucket();
-        console.log(listeMusiqueInStorage);
         let erreurs: ErreurImportFichier[] = [];
         switch (manche) {
           case "QUALIFS":
