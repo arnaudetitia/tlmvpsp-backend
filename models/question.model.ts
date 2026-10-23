@@ -3,7 +3,7 @@ export interface QuestionVo {
   bonneReponse: string;
   mauvaisesReponses: string[];
   tri: string;
-  musique: string;
-  joueeApresQuestion: boolean;
+  musiqueQuestion: string;
+  musiqueReponse: string;
   aliases: string[];
 }
