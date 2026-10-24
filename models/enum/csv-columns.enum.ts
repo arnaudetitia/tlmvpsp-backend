@@ -5,6 +5,8 @@ export enum CSVQualifsColumns {
   MAUVAISE_REPONSE_2 = 3,
   MAUVAISE_REPONSE_3 = 4,
   TRI = 5,
+  MUSIQUE_QUESTION = 6,
+  MUSIQUE_REPONSE = 7,
 }
 
 export enum CSVDefiColumns {
@@ -28,4 +30,6 @@ export enum CSVCompetColumns {
   MAUVAISE_REPONSE_3 = 6,
   TRI = 7,
   ALIASES = 8,
+  MUSIQUE_QUESTION = 9,
+  MUSIQUE_REPONSE = 10,
 }

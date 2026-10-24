@@ -12,6 +12,7 @@ import { createServer } from "http";
 import { PartieController } from "./controllers/partie.controller";
 import { QuestionController } from "./controllers/question.controller";
 import { ErreurImportFichier } from "./models/erreur-import-fichier.model";
+import { SupabaseStorageUtil } from "./utils/supabase-storage.util";
 
 export class App {
   app: Application;
@@ -76,21 +77,7 @@ export class App {
 
   configureStorage() {
     const multer = require("multer");
-    const storage = multer.diskStorage({
-      destination: function (req: any, file: any, cb: any) {
-        cb(
-          null,
-          path.join(
-            __dirname,
-            "../../../Projets Angular/tlmvpsp-frontend/src/assets/extraits/",
-          ),
-        );
-      },
-      filename: function (req: any, file: any, cb: any) {
-        cb(null, file.originalname);
-      },
-    });
-    this.upload = multer({ storage: storage });
+    this.upload = multer({ storage: multer.memoryStorage() });
   }
 
   private routes(): void {
@@ -249,12 +236,60 @@ export class App {
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
+
     this.app.post(
       "/questions",
-      this.upload.single("musicFile"),
+      this.upload.fields([
+        { name: "musicQuestionFile", maxCount: 1 },
+        { name: "musicReponseFile", maxCount: 1 },
+      ]),
       async (req, res) => {
         try {
           const question = JSON.parse(req.body.question);
+          const files = (
+            req as typeof req & {
+              files?: Record<
+                string,
+                { originalname: string; buffer: Buffer }[]
+              >;
+            }
+          ).files;
+          const musicQuestionFile = files?.musicQuestionFile?.[0];
+          const musicReponseFile = files?.musicReponseFile?.[0];
+          if (musicQuestionFile) {
+            if (
+              path.extname(musicQuestionFile.originalname).toLowerCase() !==
+              ".mp3"
+            ) {
+              return res
+                .status(400)
+                .json({ error: "Le fichier question doit être un MP3" });
+            }
+            question.musiqueQuestion =
+              question.musiqueQuestion ||
+              path.parse(musicQuestionFile.originalname).name;
+            await this.questionsController.uploadMusic(
+              question.musiqueQuestion,
+              musicQuestionFile.buffer,
+            );
+          }
+          if (musicReponseFile) {
+            if (
+              path.extname(musicReponseFile.originalname).toLowerCase() !==
+              ".mp3"
+            ) {
+              return res
+                .status(400)
+                .json({ error: "Le fichier réponse doit être un MP3" });
+            }
+            question.musiqueReponse =
+              question.musiqueReponse ||
+              path.parse(musicReponseFile.originalname).name;
+            await this.questionsController.uploadMusic(
+              question.musiqueReponse,
+              musicReponseFile.buffer,
+            );
+          }
           await this.questionsController.createQuestion(question);
           const allQuestions = await this.questionsController.getAllQuestions();
           res.json(
@@ -304,11 +339,14 @@ export class App {
         const manche = req.body.manche;
         const csvContent = req.body.csvFileContent;
         const doImport = req.body.doImport;
+        const listeMusiqueInStorage =
+          await SupabaseStorageUtil.getAllMusicInBucket();
         let erreurs: ErreurImportFichier[] = [];
         switch (manche) {
           case "QUALIFS":
             erreurs = await this.questionsController.importQuestionsQualifs(
               csvContent,
+              listeMusiqueInStorage,
               doImport,
             );
             break;
@@ -316,6 +354,7 @@ export class App {
           case "COMPET":
             erreurs = await this.questionsController.importQuestionsCompet(
               csvContent,
+              listeMusiqueInStorage,
               doImport,
             );
             break;
@@ -473,7 +512,8 @@ export class App {
             mauvaises_reponses: item.mauvaises_reponses,
             tri: item.tri,
             ordre: item.ordre,
-            musique: item.musique,
+            musique_question: item.musique_question,
+            musique_reponse: item.musique_reponse,
             jouee_apres_question: item.jouee_apres_question,
             aliases: item.aliases,
           })),
