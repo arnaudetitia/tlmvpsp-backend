@@ -81,11 +81,15 @@ export class App {
   }
 
   private routes(): void {
+    //HEALTH
+
+    this.app.get("/health", async (req, res) => {
+      return res.status(200).json(true);
+    });
+
     //ADMIN
 
     this.app.post("/admin", async (req, res) => {
-      console.log(process.env.ADMIN_PASSWORD);
-      console.log(req.body.mdpAdmin);
       if (req.body.mdpAdmin.localeCompare(process.env.ADMIN_PASSWORD) === 0) {
         return res.status(200).json({ success: true });
       }
