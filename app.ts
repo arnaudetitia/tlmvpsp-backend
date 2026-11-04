@@ -210,12 +210,18 @@ export class App {
       }
     });
 
-    this.app.put("/parties/unflag", async (req, res) => {
+    this.app.put("/parties/fin-de-partie", async (req, res) => {
       try {
+        const nouveauChampion = req.body.nouveauChampion;
+        const idPartie = Number.parseInt(req.body.idPartie);
+        if (nouveauChampion) {
+          await this.defiController.putChampion(idPartie, nouveauChampion);
+        }
         await this.partieController.flagPartieEncours(false);
+        await this.competController.viderTableJoueur();
         res.json(true);
       } catch (error) {
-        console.error("Erreur lors de l'unflag d'une partie:", error);
+        console.error("Erreur lors de la fin de la partie:", error);
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
@@ -664,18 +670,6 @@ export class App {
         const idPartie = Number.parseInt(req.params.idPartie);
         const champion = await this.defiController.getChampion(idPartie);
         res.json(champion.nom_champion);
-      } catch (error) {
-        console.error("Erreur lors de la récupération du champion", error);
-        res.status(500).json({ error: "Erreur serveur" });
-      }
-    });
-
-    this.app.put("/defi/champion/:idPartie", async (req, res) => {
-      try {
-        const idPartie = Number.parseInt(req.params.idPartie);
-        const newChampion = req.body.newChampion;
-        await this.defiController.putChampion(idPartie, newChampion);
-        res.json(true);
       } catch (error) {
         console.error("Erreur lors de la récupération du champion", error);
         res.status(500).json({ error: "Erreur serveur" });
