@@ -125,4 +125,9 @@ export class CompetController {
       values: [joueur, reponse],
     });
   }
+
+  public async viderTableJoueur() {
+    const pool = database.Database.getPool();
+    await pool.query("DELETE FROM tlmvpsp.joueurs_compet;");
+  }
 }
