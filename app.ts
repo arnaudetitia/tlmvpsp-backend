@@ -593,7 +593,7 @@ export class App {
         this.io.emit("close-votes");
         res.json(true);
       } catch (error) {
-        console.error("Erreur lors de l'ouverture des votes", error);
+        console.error("Erreur lors de la cloture des votes", error);
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
@@ -603,7 +603,17 @@ export class App {
         this.io.emit("freeze-votes");
         res.json(true);
       } catch (error) {
-        console.error("Erreur lors de l'ouverture des votes", error);
+        console.error("Erreur lors du gel des votes", error);
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+
+    this.app.put("/compet/debut-super-cash", async (req, res) => {
+      try {
+        this.io.emit("debut-super-cash");
+        res.json(true);
+      } catch (error) {
+        console.error("Erreur lors du début des questions super cash", error);
         res.status(500).json({ error: "Erreur serveur" });
       }
     });
