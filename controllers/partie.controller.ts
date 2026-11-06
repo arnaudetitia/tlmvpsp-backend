@@ -128,6 +128,19 @@ export class PartieController {
     await pool.query(query);
   }
 
+  public async isPartieEncours(): Promise<boolean> {
+    const pool = database.Database.getPool();
+    const result = await pool.query({
+      text: `
+        SELECT EXISTS (
+        	SELECT * FROM tlmvpsp.parties p
+        	WHERE p.en_cours IS TRUE
+        ) AS is_partie_en_cours
+      `,
+    });
+    return result.rows[0].is_partie_en_cours;
+  }
+
   public async getPartieWithCodeChampion(appCodeChampion: string) {
     const pool = database.Database.getPool();
     const result = await pool.query({

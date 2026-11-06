@@ -45,3 +45,7 @@ Content-Type: application/json
 ### Récupérer les themes du defi
 GET http://localhost:3033/parties/defi
 Content-Type: application/json
+
+### Savoir si une partie est en cours
+GET http://localhost:3033/compet/is-partie-en-cours
+Content-Type: application/json
