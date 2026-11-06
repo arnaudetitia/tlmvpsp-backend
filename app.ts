@@ -451,6 +451,19 @@ export class App {
       }
     });
 
+    this.app.get("/compet/is-partie-en-cours", async (req, res) => {
+      try {
+        const isPartieEnCours = await this.partieController.isPartieEncours();
+        res.json(isPartieEnCours);
+      } catch (error) {
+        console.error(
+          `Erreur lors de la le vérification de l'existence d'une partie en cours :`,
+          error,
+        );
+        res.status(500).json({ error: "Erreur serveur" });
+      }
+    });
+
     this.app.put("/compet/joueurs", async (req, res) => {
       const nomJoueurToConnect = req.body.nomJoueur;
       try {
