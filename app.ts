@@ -319,11 +319,58 @@ export class App {
     );
     this.app.put(
       "/questions/:idQuestion",
-      this.upload.single("musicFile"),
+      this.upload.fields([
+        { name: "musicQuestionFile", maxCount: 1 },
+        { name: "musicReponseFile", maxCount: 1 },
+      ]),
       async (req, res) => {
         try {
           const idQuestion = parseInt(req.params.idQuestion);
           const question = JSON.parse(req.body.question);
+          const files = (
+            req as typeof req & {
+              files?: Record<
+                string,
+                { originalname: string; buffer: Buffer }[]
+              >;
+            }
+          ).files;
+          const musicQuestionFile = files?.musicQuestionFile?.[0];
+          const musicReponseFile = files?.musicReponseFile?.[0];
+          if (musicQuestionFile) {
+            if (
+              path.extname(musicQuestionFile.originalname).toLowerCase() !==
+              ".mp3"
+            ) {
+              return res
+                .status(400)
+                .json({ error: "Le fichier question doit être un MP3" });
+            }
+            question.musiqueQuestion =
+              question.musiqueQuestion ||
+              path.parse(musicQuestionFile.originalname).name;
+            await this.questionsController.uploadMusic(
+              question.musiqueQuestion,
+              musicQuestionFile.buffer,
+            );
+          }
+          if (musicReponseFile) {
+            if (
+              path.extname(musicReponseFile.originalname).toLowerCase() !==
+              ".mp3"
+            ) {
+              return res
+                .status(400)
+                .json({ error: "Le fichier réponse doit être un MP3" });
+            }
+            question.musiqueReponse =
+              question.musiqueReponse ||
+              path.parse(musicReponseFile.originalname).name;
+            await this.questionsController.uploadMusic(
+              question.musiqueReponse,
+              musicReponseFile.buffer,
+            );
+          }
           await this.questionsController.updateQuestion(idQuestion, question);
           const allQuestions = await this.questionsController.getAllQuestions();
           res.json(
