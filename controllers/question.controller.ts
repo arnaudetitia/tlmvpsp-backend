@@ -125,7 +125,7 @@ export class QuestionController {
           text: `
 		INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
 		VALUES ($1, $2, $3)
-		ON CONFLICT (id_question)
+		ON CONFLICT (id_question,jouee_apres_question)
 		DO UPDATE SET
 		musique = EXCLUDED.musique,
 		jouee_apres_question = EXCLUDED.jouee_apres_question
@@ -148,7 +148,7 @@ export class QuestionController {
           text: `
 		INSERT INTO tlmvpsp.musiques_question(id_question, musique, jouee_apres_question)
 		VALUES ($1, $2, $3)
-		ON CONFLICT (id_question)
+		ON CONFLICT (id_question,jouee_apres_question)
 		DO UPDATE SET
 		musique = EXCLUDED.musique,
 		jouee_apres_question = EXCLUDED.jouee_apres_question
